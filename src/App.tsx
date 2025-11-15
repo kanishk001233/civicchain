@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { LoginPage } from './components/LoginPage';
 import { DashboardLayout } from './components/DashboardLayout';
-import { OverviewPage } from './components/OverviewPage';
+import { OverviewPageEnhanced } from './components/OverviewPageEnhanced';
 import { DepartmentsPage } from './components/DepartmentsPage';
-import { StatsPage } from './components/StatsPage';
+import { StatsPageEnhanced } from './components/StatsPageEnhanced';
 import { PerformancePage } from './components/PerformancePage';
 import { ReportsPage } from './components/ReportsPage';
 import { HelpPage } from './components/HelpPage';
 import { StateOverviewPage } from './components/StateOverviewPage';
+import { AIInsightsPage } from './components/AIInsightsPage';
 import { Toaster } from './components/ui/sonner';
 import { toast } from 'sonner@2.0.3';
 import * as api from './utils/api';
@@ -43,37 +44,50 @@ export default function App() {
   const [stateId, setStateId] = useState<string>('');
   const [stateName, setStateName] = useState<string>('');
 
-  // Load complaints when logged in
+  // Initialize from localStorage on mount
   useEffect(() => {
-    if (isLoggedIn && municipalId) {
+    const savedLoginType = localStorage.getItem('loginType');
+    const savedMunicipalId = localStorage.getItem('municipalId');
+    const savedMunicipalName = localStorage.getItem('municipalName');
+    const savedStateId = localStorage.getItem('stateId');
+    const savedStateName = localStorage.getItem('stateName');
+    const savedCurrentPage = localStorage.getItem('currentPage');
+
+    if (savedLoginType === 'municipal' && savedMunicipalId && savedMunicipalName) {
+      setIsLoggedIn(true);
+      setLoginType('municipal');
+      setMunicipalId(savedMunicipalId);
+      setMunicipalName(savedMunicipalName);
+      if (savedCurrentPage) {
+        setCurrentPage(savedCurrentPage);
+      }
+    } else if (savedLoginType === 'state' && savedStateId && savedStateName) {
+      setIsLoggedIn(true);
+      setLoginType('state');
+      setStateId(savedStateId);
+      setStateName(savedStateName);
+      setCurrentPage('overview');
+    }
+  }, []);
+
+  // Load complaints when logged in as municipal
+  useEffect(() => {
+    if (isLoggedIn && loginType === 'municipal' && municipalId) {
       loadComplaints();
     }
-  }, [isLoggedIn, municipalId]);
+  }, [isLoggedIn, loginType, municipalId]);
+
+  // Save current page to localStorage whenever it changes
+  useEffect(() => {
+    if (isLoggedIn && loginType === 'municipal') {
+      localStorage.setItem('currentPage', currentPage);
+    }
+  }, [currentPage, isLoggedIn, loginType]);
 
   const loadComplaints = async () => {
     try {
       setLoading(true);
       const data = await api.getComplaintsByMunicipal(municipalId);
-      console.log('Loaded complaints:', data);
-      if (data && data.length > 0) {
-        console.log('First complaint GPS data:', {
-          latitude: data[0]?.latitude,
-          longitude: data[0]?.longitude,
-          latType: typeof data[0]?.latitude,
-          lngType: typeof data[0]?.longitude,
-        });
-        
-        // Log resolution images for resolved/verified complaints
-        const resolvedComplaints = data.filter((c: any) => c.status === 'resolved' || c.status === 'verified');
-        if (resolvedComplaints.length > 0) {
-          console.log('Resolved/Verified complaints with images:', resolvedComplaints.map((c: any) => ({
-            id: c.id,
-            status: c.status,
-            resolutionImages: c.resolutionImages,
-            resolutionImagesCount: c.resolutionImages?.length || 0,
-          })));
-        }
-      }
       setComplaints(data as any);
     } catch (error) {
       console.error('Error loading complaints:', error);
@@ -90,6 +104,14 @@ export default function App() {
     setLoginType('municipal');
     setMunicipalId(municipalId);
     setMunicipalName(municipalName);
+    setCurrentPage('overview');
+    
+    // Save to localStorage
+    localStorage.setItem('loginType', 'municipal');
+    localStorage.setItem('municipalId', municipalId);
+    localStorage.setItem('municipalName', municipalName);
+    localStorage.setItem('currentPage', 'overview');
+    
     toast.success(`Successfully logged in to ${municipalName}`);
   };
 
@@ -99,6 +121,12 @@ export default function App() {
     setStateId(stateId);
     setStateName(stateName);
     setCurrentPage('overview');
+    
+    // Save to localStorage
+    localStorage.setItem('loginType', 'state');
+    localStorage.setItem('stateId', stateId);
+    localStorage.setItem('stateName', stateName);
+    
     toast.success(`Successfully logged in to ${stateName} State Dashboard`);
   };
 
@@ -110,6 +138,15 @@ export default function App() {
     setStateId('');
     setStateName('');
     setComplaints([]);
+    
+    // Clear localStorage
+    localStorage.removeItem('loginType');
+    localStorage.removeItem('municipalId');
+    localStorage.removeItem('municipalName');
+    localStorage.removeItem('stateId');
+    localStorage.removeItem('stateName');
+    localStorage.removeItem('currentPage');
+    
     toast.info('Logged out successfully');
   };
 
@@ -133,6 +170,11 @@ export default function App() {
       toast.success('Complaint resolved successfully', {
         description: 'The complaint has been marked as resolved with verification photo.',
       });
+      
+      // Reload complaints to get fresh data from database
+      setTimeout(() => {
+        loadComplaints();
+      }, 1000);
     } catch (error) {
       console.error('Error resolving complaint:', error);
       toast.error('Failed to resolve complaint', {
@@ -154,7 +196,7 @@ export default function App() {
     // Municipal login - show all pages
     switch (currentPage) {
       case 'overview':
-        return <OverviewPage complaints={complaints} loading={loading} />;
+        return <OverviewPageEnhanced complaints={complaints} loading={loading} />;
       case 'departments':
         return (
           <DepartmentsPage
@@ -164,7 +206,9 @@ export default function App() {
           />
         );
       case 'stats':
-        return <StatsPage municipalId={municipalId} />;
+        return <StatsPageEnhanced municipalId={municipalId} />;
+      case 'ai-insights':
+        return <AIInsightsPage municipalId={municipalId} />;
       case 'performance':
         return <PerformancePage municipalId={municipalId} />;
       case 'reports':
@@ -172,7 +216,7 @@ export default function App() {
       case 'help':
         return <HelpPage />;
       default:
-        return <OverviewPage complaints={complaints} loading={loading} />;
+        return <OverviewPageEnhanced complaints={complaints} loading={loading} />;
     }
   };
 
