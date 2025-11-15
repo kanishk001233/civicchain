@@ -113,146 +113,171 @@ export function OverviewPageEnhanced({ complaints, loading }: OverviewPageProps)
             <p className="text-sm text-gray-600">Real-time municipal complaint system insights</p>
           </div>
         </div>
-        <div className="mt-4 inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl shadow-md">
-          <div className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-          </div>
-          <span className="text-sm text-green-800">System Active • All Departments Online</span>
-          <Badge className="bg-green-600 text-white border-0 text-xs">Live</Badge>
-        </div>
+
       </div>
 
       {/* Main Stats Cards - Enhanced Design */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Total Complaints */}
-        <Card className="relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-2xl hover:shadow-3xl transition-all transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -mr-20 -mt-20"></div>
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full -ml-16 -mb-16"></div>
-          <div className="p-6 relative">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
-                <Activity className="w-8 h-8 text-white" />
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-blue-100 mb-1">Total</div>
-                <Badge className="bg-white bg-opacity-25 text-white border-0 backdrop-blur-sm">
-                  All Time
-                </Badge>
-              </div>
-            </div>
-            <div className="text-5xl mb-2">{totalCount}</div>
-            <div className="text-sm text-blue-100">All Complaints</div>
-            <div className="mt-4 pt-4 border-t border-white border-opacity-20">
-              <div className="flex items-center justify-between text-xs text-blue-100">
-                <span>This Week</span>
-                <span className="flex items-center gap-1">
-                  {last7Days.length}
-                  {weeklyTrend !== 0 && (
-                    <span className={`flex items-center ml-2 ${weeklyTrend > 0 ? 'text-orange-200' : 'text-green-200'}`}>
-                      {weeklyTrend > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-                      {Math.abs(weeklyTrend)}%
-                    </span>
-                  )}
-                </span>
-              </div>
-            </div>
-          </div>
-        </Card>
+        <Card className="overflow-hidden bg-white border border-gray-200 shadow-sm">
+  {/* Main Content Area */}
+  <div className="p-6">
+    <div className="flex items-start justify-between mb-4">
+      {/* Icon */}
+      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+        <Activity className="w-6 h-6 text-blue-600" />
+      </div>
+      
+      {/* Badge */}
+      <div className="text-right">
+        <div className="text-xs text-gray-500 mb-1">Total</div>
+        <Badge variant="outline" className="bg-gray-50 border-gray-200 text-gray-700">
+          All Time
+        </Badge>
+      </div>
+    </div>
+    
+    {/* Main Stats */}
+    <div className="text-4xl font-bold text-gray-900 mb-1">{totalCount}</div>
+    <div className="text-sm text-gray-500">All Complaints</div>
+  </div>
+  
+  {/* Footer Area with different background */}
+  <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
+    <div className="flex items-center justify-between text-sm text-gray-600">
+      <span>This Week</span>
+      <span className="flex items-center gap-1 font-medium">
+        {last7Days.length}
+        
+        {/* Trend Indicator */}
+        {weeklyTrend !== 0 && (
+          <span className={`flex items-center ml-2 text-xs ${weeklyTrend > 0 ? 'text-red-600' : 'text-green-600'}`}>
+            {weeklyTrend > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+            {Math.abs(weeklyTrend)}%
+          </span>
+        )}
+      </span>
+    </div>
+  </div>
+</Card>
 
         {/* Pending */}
-        <Card className="relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-700 text-white shadow-2xl hover:shadow-3xl transition-all transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -mr-20 -mt-20"></div>
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full -ml-16 -mb-16"></div>
-          <div className="p-6 relative">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
-                <Clock className="w-8 h-8 text-white" />
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-orange-100 mb-1">Pending</div>
-                <Badge className="bg-white bg-opacity-25 text-white border-0 backdrop-blur-sm">
-                  {totalCount > 0 ? Math.round((pendingCount / totalCount) * 100) : 0}%
-                </Badge>
-              </div>
-            </div>
-            <div className="text-5xl mb-2">{pendingCount}</div>
-            <div className="text-sm text-orange-100">Awaiting Action</div>
-            <div className="mt-4 pt-4 border-t border-white border-opacity-20">
-              <div className="flex items-center justify-between text-xs text-orange-100">
-                <span>Requires Review</span>
-                <span className="flex items-center gap-1">
-                  <AlertTriangle className="w-3 h-3" />
-                  High Priority
-                </span>
-              </div>
-            </div>
-          </div>
-        </Card>
+        <Card className="overflow-hidden bg-white border border-gray-200 shadow-sm">
+  {/* Main Content Area */}
+  <div className="p-6">
+    <div className="flex items-start justify-between mb-4">
+      {/* Icon */}
+      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+        <Clock className="w-8 h-8 text-blue-600" />
+      </div>
+      
+      {/* Badge */}
+      <div className="text-right">
+        <div className="text-xs text-gray-500 mb-1">Pending</div>
+        <Badge variant="outline" className="bg-gray-50 border-gray-200 text-gray-700">
+          {totalCount > 0 ? Math.round((pendingCount / totalCount) * 100) : 0}%
+        </Badge>
+      </div>
+    </div>
+    
+    {/* Main Stats */}
+    <div className="text-4xl font-bold text-gray-900 mb-1">{pendingCount}</div>
+    <div className="text-sm text-gray-500">Awaiting Action</div>
+  </div>
+  
+  {/* Footer Area with different background */}
+  <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
+    <div className="flex items-center justify-between text-sm text-gray-600">
+      <span>Requires Review</span>
+      <span className="flex items-center gap-1 font-medium text-orange-600"> {/* Added color for emphasis */}
+        <AlertTriangle className="w-4 h-4" /> {/* Slightly larger icon */}
+        High Priority
+      </span>
+    </div>
+  </div>
+</Card>
 
         {/* In Progress */}
-        <Card className="relative overflow-hidden bg-gradient-to-br from-cyan-500 to-cyan-700 text-white shadow-2xl hover:shadow-3xl transition-all transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -mr-20 -mt-20"></div>
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full -ml-16 -mb-16"></div>
-          <div className="p-6 relative">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
-                <TrendingUp className="w-8 h-8 text-white" />
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-cyan-100 mb-1">Active</div>
-                <Badge className="bg-white bg-opacity-25 text-white border-0 backdrop-blur-sm">
-                  {totalCount > 0 ? Math.round((verifiedCount / totalCount) * 100) : 0}%
-                </Badge>
-              </div>
-            </div>
-            <div className="text-5xl mb-2">{verifiedCount}</div>
-            <div className="text-sm text-cyan-100">In Progress</div>
-            <div className="mt-4 pt-4 border-t border-white border-opacity-20">
-              <div className="flex items-center justify-between text-xs text-cyan-100">
-                <span>Being Resolved</span>
-                <span className="flex items-center gap-1">
-                  <Zap className="w-3 h-3" />
-                  Active
-                </span>
-              </div>
-            </div>
-          </div>
-        </Card>
+        <Card className="overflow-hidden bg-white border border-gray-200 shadow-sm">
+  {/* Main Content */}
+  <div className="p-6">
+    <div className="flex items-start justify-between mb-4">
+      
+      {/* Icon */}
+      <div className="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
+        <TrendingUp className="w-6 h-6 text-cyan-600" />
+      </div>
+
+      {/* Badge + Label */}
+      <div className="text-right">
+        <div className="text-xs text-gray-500 mb-1">Active</div>
+        <Badge variant="outline" className="bg-gray-50 border-gray-200 text-gray-700">
+          {totalCount > 0 ? Math.round((verifiedCount / totalCount) * 100) : 0}%
+        </Badge>
+      </div>
+    </div>
+
+    {/* Main Stats */}
+    <div className="text-4xl font-bold text-gray-900 mb-1">{verifiedCount}</div>
+    <div className="text-sm text-gray-500">In Progress</div>
+  </div>
+
+  {/* Footer */}
+  <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
+    <div className="flex items-center justify-between text-sm text-gray-600">
+      <span>Being Resolved</span>
+
+      <span className="flex items-center gap-1 font-medium">
+        Active
+        <Zap className="w-4 h-4 text-cyan-600" />
+      </span>
+    </div>
+  </div>
+</Card>
+
 
         {/* Resolved */}
-        <Card className="relative overflow-hidden bg-gradient-to-br from-green-500 to-green-700 text-white shadow-2xl hover:shadow-3xl transition-all transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -mr-20 -mt-20"></div>
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full -ml-16 -mb-16"></div>
-          <div className="p-6 relative">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
-                <CheckCircle className="w-8 h-8 text-white" />
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-green-100 mb-1">Success Rate</div>
-                <Badge className="bg-white bg-opacity-25 text-white border-0 backdrop-blur-sm">
-                  {resolutionRate}%
-                </Badge>
-              </div>
-            </div>
-            <div className="text-5xl mb-2">{resolvedCount}</div>
-            <div className="text-sm text-green-100">Resolved</div>
-            <div className="mt-4 pt-4 border-t border-white border-opacity-20">
-              <div className="flex items-center justify-between text-xs text-green-100">
-                <span>Avg Resolution</span>
-                <span className="flex items-center gap-1">
-                  {avgResolutionTime} days
-                </span>
-              </div>
-            </div>
-          </div>
-        </Card>
+        <Card className="overflow-hidden bg-white border border-gray-200 shadow-sm">
+  {/* Main Content */}
+  <div className="p-6">
+    <div className="flex items-start justify-between mb-4">
+
+      {/* Icon */}
+      <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+        <CheckCircle className="w-6 h-6 text-green-600" />
+      </div>
+
+      {/* Badge + Label */}
+      <div className="text-right">
+        <div className="text-xs text-gray-500 mb-1">Success Rate</div>
+        <Badge variant="outline" className="bg-gray-50 border-gray-200 text-gray-700">
+          {resolutionRate}%
+        </Badge>
+      </div>
+    </div>
+
+    {/* Main Stats */}
+    <div className="text-4xl font-bold text-gray-900 mb-1">{resolvedCount}</div>
+    <div className="text-sm text-gray-500">Resolved</div>
+  </div>
+
+  {/* Footer */}
+  <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
+    <div className="flex items-center justify-between text-sm text-gray-600">
+      <span>Avg Resolution</span>
+
+      <span className="flex items-center gap-1 font-medium">
+        {avgResolutionTime} days
+      </span>
+    </div>
+  </div>
+</Card>
+
       </div>
 
       {/* Quick Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="p-6 bg-white shadow-lg hover:shadow-xl transition-shadow border-l-4 border-purple-500">
+        <Card className="p-6 bg-white shadow-lg hover:shadow-xl transition-shadow border-l-4 ">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center">
               <ThumbsUp className="w-8 h-8 text-purple-600" />
@@ -316,40 +341,64 @@ export function OverviewPageEnhanced({ complaints, loading }: OverviewPageProps)
           </Badge>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categoryCounts.map((category) => {
-            const percentage = totalCount > 0 ? Math.round((category.count / totalCount) * 100) : 0;
-            
-            return (
-              <div 
-                key={category.id} 
-                className="relative group text-center p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl hover:from-blue-50 hover:to-purple-50 transition-all border-2 border-gray-200 hover:border-blue-400 cursor-pointer transform hover:-translate-y-1 hover:shadow-xl"
-              >
-                <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform">
-                  {category.icon}
-                </div>
-                <div className="text-3xl mb-2">{category.count}</div>
-                <p className="text-xs text-gray-600 mb-3">{category.name}</p>
-                
-                {/* Progress bar */}
-                <div className="w-full bg-gray-200 rounded-full h-1.5 mb-2">
-                  <div 
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 h-1.5 rounded-full transition-all"
-                    style={{ width: `${percentage}%` }}
-                  ></div>
-                </div>
-                
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-500">{percentage}%</span>
-                  {category.pending > 0 && (
-                    <Badge className="bg-orange-100 text-orange-800 border-0 text-xs">
-                      {category.pending}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+  {categoryCounts.map((category) => {
+    const percentage =
+      totalCount > 0 ? Math.round((category.count / totalCount) * 100) : 0;
+
+    return (
+      <div
+        key={category.id}
+        className="relative group text-center p-5 bg-white rounded-xl 
+        border border-gray-200 hover:border-blue-400 
+        transition-all cursor-pointer transform hover:-translate-y-1 
+        hover:shadow-lg"
+      >
+        {/* Icon */}
+        <div className="text-4xl mb-3 transform group-hover:scale-110 transition-transform">
+          {category.icon}
         </div>
+
+        {/* Count */}
+        <div className="text-3xl font-semibold text-gray-800 mb-1">
+          {category.count}
+        </div>
+
+        {/* Label */}
+        <p className="text-sm text-gray-600 mb-4">{category.name}</p>
+
+        {/* Improved Progress Bar */}
+        <div className="w-full mb-3">
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-lg font-medium text-gray-600">Progress</span>
+            <span className="text-lg font-semibold text-gray-900">
+              {percentage}%
+            </span>
+          </div>
+
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div
+              className="h-2.5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 
+              transition-all duration-300 shadow-inner"
+              style={{ width: `${percentage}%` }}
+            ></div>
+          </div>
+        </div>
+
+        {/* Footer (Pending Badge) */}
+        <div className="flex items-center justify-between text-lg mt-1">
+          <span className="text-gray-500">Total</span>
+
+          {category.pending > 0 && (
+            <Badge className="bg-orange-100 text-orange-800 border-0 text-lg px-2 py-0.5 rounded-md">
+              {category.pending}
+            </Badge>
+          )}
+        </div>
+      </div>
+    );
+  })}
+</div>
+
       </Card>
 
       {/* Bottom Grid - Urgent & Recent */}
@@ -358,7 +407,7 @@ export function OverviewPageEnhanced({ complaints, loading }: OverviewPageProps)
         <Card className="p-6 bg-white shadow-xl border-l-4 border-red-500">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-500 rounded-lg flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-white" />
+              <AlertTriangle className="w-6 h-6 text-black" />
             </div>
             <h2 className="text-xl">Urgent Complaints</h2>
             <Badge className="bg-gradient-to-r from-red-600 to-orange-600 text-white border-0">
@@ -401,7 +450,7 @@ export function OverviewPageEnhanced({ complaints, loading }: OverviewPageProps)
         </Card>
 
         {/* Recent Activity */}
-        <Card className="p-6 bg-white shadow-xl border-l-4 border-blue-500">
+        <Card className="p-6 bg-white shadow-xl">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
               <Activity className="w-5 h-5 text-white" />
