@@ -163,11 +163,7 @@ export function ComplaintCard({ complaint, onResolve, onClick }: ComplaintCardPr
                   <CheckCircle className="w-4 h-4" />
                   <span className="text-sm">Resolved on {formattedResolvedDate}</span>
                 </div>
-                {complaint.status === 'resolved' && (
-                  <p className="text-xs text-amber-600 mt-1">
-                    Needs {3 - (complaint.verificationCount || 0)} more citizen verification{3 - (complaint.verificationCount || 0) !== 1 ? 's' : ''}
-                  </p>
-                )}
+                {complaint.status === 'resolved'}
                 {complaint.status === 'verified' && (
                   <p className="text-xs text-green-700 mt-1">
                     ✓ Verified by {complaint.verificationCount} citizens

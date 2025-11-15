@@ -188,7 +188,7 @@ export function ComplaintDetailsDialog({ complaint, open, onClose }: ComplaintDe
                       <p className="text-sm text-gray-600">By: {complaint.resolvedByOfficer}</p>
                     )}
                     <p className="text-sm text-amber-600 mt-1">
-                      Awaiting citizen verifications
+                      Awaiting citizen verification
                     </p>
                   </div>
                 </div>
