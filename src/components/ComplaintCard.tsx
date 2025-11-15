@@ -108,11 +108,28 @@ export function ComplaintCard({ complaint, onResolve, onClick }: ComplaintCardPr
               alt={complaint.title}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
-              <p className="text-white opacity-0 group-hover:opacity-100 transition-opacity text-sm">
-                Click for details
-              </p>
-            </div>
+            <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
+  
+  {/* Translucent (Frosted Glass) Box */}
+  <div className="
+    opacity-0 group-hover:opacity-100 transition-opacity
+    
+    /* These two classes create the translucent effect */
+    bg-white bg-opacity-100
+    backdrop-blur-lg
+    
+    /* Your existing box styles */
+    border border-white border-opacity-90
+    rounded-lg px-3 py-1.5
+    
+    /* Your existing glow effect */
+    group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]
+  ">
+    <p className="text-black text-sm">
+      Click for details
+    </p>
+  </div>
+</div>
           </div>
 
           {/* Content */}

@@ -90,12 +90,13 @@ export function ComplaintDetailsDialog({ complaint, open, onClose }: ComplaintDe
   };
 
   return (
+    
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl pr-8">{complaint.title}</DialogTitle>
         </DialogHeader>
-
+        
         <div className="space-y-6">
           {/* Status and Metrics */}
           <div className="flex items-center gap-4 flex-wrap">
@@ -222,8 +223,9 @@ export function ComplaintDetailsDialog({ complaint, open, onClose }: ComplaintDe
               )}
             </div>
           </div>
-
+          
           {/* Resolution Images */}
+          
           {complaint.resolutionImages && complaint.resolutionImages.length > 0 && (
             <div>
               <h3 className="mb-3 text-green-700">

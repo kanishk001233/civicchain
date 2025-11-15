@@ -118,8 +118,7 @@ export function HeatmapCard({ municipalId }: HeatmapCardProps) {
   }
 
   function parseCoordinatesFromLocation(location: string): { lat: number; lng: number } | null {
-    // Try to parse coordinates from location string
-    // Format could be: "19.0760, 72.8777" or "19.0760,72.8777"
+    
     
     const coordPattern = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)\s*,\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
     
