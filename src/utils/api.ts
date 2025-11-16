@@ -422,3 +422,288 @@ export async function getStateComplaints(stateId: string): Promise<Complaint[]> 
     resolvedByOfficer: c.resolved_by,
   }));
 }
+
+export interface StateDepartmentPerformance {
+  categoryId: string;
+  categoryName: string;
+  statewideAvg: number;
+  worstMunicipal: string;
+  worstMunicipalAvg: number;
+  bestMunicipal: string;
+  bestMunicipalAvg: number;
+  totalComplaints: number;
+  resolvedPercentage: number;
+}
+
+export async function getStateDepartmentPerformance(stateId: string): Promise<StateDepartmentPerformance[]> {
+  const { createClient } = await import('./supabase/client');
+  const supabase = createClient();
+  
+  // Get all municipals in the state
+  const { data: municipals, error: municipalsError } = await supabase
+    .from('municipals')
+    .select('id, name')
+    .eq('state_id', stateId);
+  
+  if (municipalsError) {
+    throw new Error(`Failed to fetch municipals: ${municipalsError.message}`);
+  }
+  
+  // Get all categories
+  const { data: categories, error: categoriesError } = await supabase
+    .from('categories')
+    .select('id, name');
+  
+  if (categoriesError) {
+    throw new Error(`Failed to fetch categories: ${categoriesError.message}`);
+  }
+  
+  const municipalIds = municipals?.map(m => m.id) || [];
+  
+  // Get all complaints for these municipals
+  const { data: complaints, error: complaintsError } = await supabase
+    .from('complaints')
+    .select('*')
+    .in('municipal_id', municipalIds);
+  
+  if (complaintsError) {
+    throw new Error(`Failed to fetch complaints: ${complaintsError.message}`);
+  }
+  
+  const deptPerformance: StateDepartmentPerformance[] = [];
+  
+  for (const category of categories || []) {
+    const categoryComplaints = complaints?.filter(c => c.category_id === category.id) || [];
+    
+    if (categoryComplaints.length === 0) continue;
+    
+    // Calculate municipal-level stats for this category
+    const municipalStats: { [key: string]: { avgDays: number; name: string; count: number } } = {};
+    
+    for (const municipal of municipals || []) {
+      const munComplaints = categoryComplaints.filter(c => c.municipal_id === municipal.id);
+      const resolved = munComplaints.filter(c => (c.status === 'resolved' || c.status === 'verified') && c.resolved_date);
+      
+      if (resolved.length > 0) {
+        const totalDays = resolved.reduce((sum, c) => {
+          const days = (new Date(c.resolved_date).getTime() - new Date(c.submitted_date).getTime()) / (1000 * 60 * 60 * 24);
+          return sum + days;
+        }, 0);
+        
+        municipalStats[municipal.id] = {
+          avgDays: totalDays / resolved.length,
+          name: municipal.name,
+          count: munComplaints.length,
+        };
+      }
+    }
+    
+    // Calculate statewide average
+    const allResolved = categoryComplaints.filter(c => (c.status === 'resolved' || c.status === 'verified') && c.resolved_date);
+    let statewideAvg = 0;
+    if (allResolved.length > 0) {
+      const totalDays = allResolved.reduce((sum, c) => {
+        const days = (new Date(c.resolved_date).getTime() - new Date(c.submitted_date).getTime()) / (1000 * 60 * 60 * 24);
+        return sum + days;
+      }, 0);
+      statewideAvg = totalDays / allResolved.length;
+    }
+    
+    // Find best and worst
+    const statsArray = Object.entries(municipalStats);
+    if (statsArray.length === 0) continue;
+    
+    const worst = statsArray.reduce((prev, curr) => prev[1].avgDays > curr[1].avgDays ? prev : curr);
+    const best = statsArray.reduce((prev, curr) => prev[1].avgDays < curr[1].avgDays ? prev : curr);
+    
+    const resolvedCount = categoryComplaints.filter(c => c.status === 'resolved' || c.status === 'verified').length;
+    const resolvedPercentage = categoryComplaints.length > 0 ? (resolvedCount / categoryComplaints.length) * 100 : 0;
+    
+    deptPerformance.push({
+      categoryId: category.id,
+      categoryName: category.name,
+      statewideAvg,
+      worstMunicipal: worst[1].name,
+      worstMunicipalAvg: worst[1].avgDays,
+      bestMunicipal: best[1].name,
+      bestMunicipalAvg: best[1].avgDays,
+      totalComplaints: categoryComplaints.length,
+      resolvedPercentage,
+    });
+  }
+  
+  return deptPerformance;
+}
+
+export interface YearlyTrend {
+  year: string;
+  total: number;
+  resolved: number;
+  avgDays: number;
+}
+
+export async function getStateHistoricalTrends(stateId: string): Promise<YearlyTrend[]> {
+  const { createClient } = await import('./supabase/client');
+  const supabase = createClient();
+  
+  // Get all municipals in the state
+  const { data: municipals, error: municipalsError } = await supabase
+    .from('municipals')
+    .select('id')
+    .eq('state_id', stateId);
+  
+  if (municipalsError) {
+    throw new Error(`Failed to fetch municipals: ${municipalsError.message}`);
+  }
+  
+  const municipalIds = municipals?.map(m => m.id) || [];
+  
+  // Get all complaints for these municipals
+  const { data: complaints, error: complaintsError } = await supabase
+    .from('complaints')
+    .select('*')
+    .in('municipal_id', municipalIds);
+  
+  if (complaintsError) {
+    throw new Error(`Failed to fetch complaints: ${complaintsError.message}`);
+  }
+  
+  // Group by year
+  const yearlyData: { [key: string]: YearlyTrend } = {};
+  
+  complaints?.forEach(c => {
+    const year = new Date(c.submitted_date).getFullYear().toString();
+    
+    if (!yearlyData[year]) {
+      yearlyData[year] = { year, total: 0, resolved: 0, avgDays: 0 };
+    }
+    
+    yearlyData[year].total++;
+    
+    if ((c.status === 'resolved' || c.status === 'verified') && c.resolved_date) {
+      yearlyData[year].resolved++;
+    }
+  });
+  
+  // Calculate average resolution days for each year
+  Object.keys(yearlyData).forEach(year => {
+    const yearComplaints = complaints?.filter(c => 
+      new Date(c.submitted_date).getFullYear().toString() === year &&
+      (c.status === 'resolved' || c.status === 'verified') &&
+      c.resolved_date
+    ) || [];
+    
+    if (yearComplaints.length > 0) {
+      const totalDays = yearComplaints.reduce((sum, c) => {
+        const days = (new Date(c.resolved_date).getTime() - new Date(c.submitted_date).getTime()) / (1000 * 60 * 60 * 24);
+        return sum + days;
+      }, 0);
+      yearlyData[year].avgDays = totalDays / yearComplaints.length;
+    }
+  });
+  
+  // Convert to array and sort by year
+  return Object.values(yearlyData).sort((a, b) => parseInt(a.year) - parseInt(b.year));
+}
+
+export interface CategoryForecast {
+  categoryId: string;
+  categoryName: string;
+  forecast2025: number;
+  confidence: number;
+}
+
+export async function getStateForecast(stateId: string): Promise<CategoryForecast[]> {
+  const { createClient } = await import('./supabase/client');
+  const supabase = createClient();
+  
+  // Get all municipals in the state
+  const { data: municipals, error: municipalsError } = await supabase
+    .from('municipals')
+    .select('id')
+    .eq('state_id', stateId);
+  
+  if (municipalsError) {
+    throw new Error(`Failed to fetch municipals: ${municipalsError.message}`);
+  }
+  
+  // Get all categories
+  const { data: categories, error: categoriesError } = await supabase
+    .from('categories')
+    .select('id, name');
+  
+  if (categoriesError) {
+    throw new Error(`Failed to fetch categories: ${categoriesError.message}`);
+  }
+  
+  const municipalIds = municipals?.map(m => m.id) || [];
+  
+  // Get all complaints for these municipals
+  const { data: complaints, error: complaintsError } = await supabase
+    .from('complaints')
+    .select('*')
+    .in('municipal_id', municipalIds);
+  
+  if (complaintsError) {
+    throw new Error(`Failed to fetch complaints: ${complaintsError.message}`);
+  }
+  
+  const forecasts: CategoryForecast[] = [];
+  const currentYear = new Date().getFullYear();
+  
+  for (const category of categories || []) {
+    // Get last 3 years of data for this category
+    const categoryComplaints = complaints?.filter(c => c.category_id === category.id) || [];
+    
+    // Group by year
+    const yearlyCount: { [key: number]: number } = {};
+    categoryComplaints.forEach(c => {
+      const year = new Date(c.submitted_date).getFullYear();
+      if (year >= currentYear - 3) {
+        yearlyCount[year] = (yearlyCount[year] || 0) + 1;
+      }
+    });
+    
+    // Calculate trend (simple linear regression)
+    const years = Object.keys(yearlyCount).map(Number).sort();
+    if (years.length >= 2) {
+      const counts = years.map(y => yearlyCount[y]);
+      const avgCount = counts.reduce((a, b) => a + b, 0) / counts.length;
+      
+      // Calculate growth rate
+      const firstYear = counts[0];
+      const lastYear = counts[counts.length - 1];
+      const growthRate = lastYear > 0 ? ((lastYear - firstYear) / firstYear) : 0;
+      
+      // Forecast for next year
+      const forecast = Math.round(lastYear * (1 + growthRate));
+      
+      // Confidence based on data consistency
+      const variance = counts.reduce((sum, c) => sum + Math.pow(c - avgCount, 2), 0) / counts.length;
+      const stdDev = Math.sqrt(variance);
+      const cv = avgCount > 0 ? (stdDev / avgCount) : 1;
+      const confidence = Math.max(60, Math.min(95, 90 - (cv * 30)));
+      
+      forecasts.push({
+        categoryId: category.id,
+        categoryName: category.name,
+        forecast2025: forecast > 0 ? forecast : avgCount,
+        confidence: Math.round(confidence),
+      });
+    } else {
+      // Not enough data, use current year count
+      const currentCount = categoryComplaints.filter(c => 
+        new Date(c.submitted_date).getFullYear() === currentYear
+      ).length;
+      
+      forecasts.push({
+        categoryId: category.id,
+        categoryName: category.name,
+        forecast2025: currentCount,
+        confidence: 65,
+      });
+    }
+  }
+  
+  return forecasts;
+}

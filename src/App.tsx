@@ -7,7 +7,7 @@ import { StatsPageEnhanced } from './components/StatsPageEnhanced';
 import { PerformancePage } from './components/PerformancePage';
 import { ReportsPage } from './components/ReportsPage';
 import { HelpPage } from './components/HelpPage';
-import { StateOverviewPage } from './components/StateOverviewPage';
+import { StateOverviewPageEnhanced } from './components/StateOverviewPageEnhanced';
 import { AIInsightsPage } from './components/AIInsightsPage';
 import { Toaster } from './components/ui/sonner';
 import { toast } from 'sonner@2.0.3';
@@ -190,7 +190,7 @@ export default function App() {
   const renderPage = () => {
     // State login - only show overview page
     if (loginType === 'state') {
-      return <StateOverviewPage stateId={stateId} stateName={stateName} />;
+      return <StateOverviewPageEnhanced stateId={stateId} stateName={stateName} />;
     }
 
     // Municipal login - show all pages
