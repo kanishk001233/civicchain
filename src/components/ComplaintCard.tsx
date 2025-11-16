@@ -48,20 +48,12 @@ export function ComplaintCard({ complaint, onResolve, onClick }: ComplaintCardPr
     day: 'numeric', 
     year: 'numeric' 
   });
-  const formattedTime = date.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
-  });
 
   const resolvedDate = complaint.resolvedDate ? new Date(complaint.resolvedDate) : null;
   const formattedResolvedDate = resolvedDate?.toLocaleDateString('en-US', { 
     month: 'short', 
     day: 'numeric', 
     year: 'numeric' 
-  });
-  const formattedResolvedTime = resolvedDate?.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
   });
 
   const handleResolveClick = () => {
@@ -82,14 +74,8 @@ export function ComplaintCard({ complaint, onResolve, onClick }: ComplaintCardPr
       return;
     }
     
-    // Encode the location for URL
     const encodedLocation = encodeURIComponent(location);
-    
-    // Open Google Maps search with the location (works for both addresses and coordinates)
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedLocation}`;
-    
-    console.log('Searching Google Maps for:', location);
-    console.log('Maps URL:', mapsUrl);
     
     window.open(mapsUrl, '_blank');
   };
@@ -101,41 +87,79 @@ export function ComplaintCard({ complaint, onResolve, onClick }: ComplaintCardPr
         onClick={() => onClick(complaint)}
       >
         <div className="flex flex-col md:flex-row">
-          {/* Image */}
-          <div className="md:w-48 h-48 md:h-auto bg-gray-100 flex-shrink-0 relative group">
-            <ImageWithFallback
-              src={complaint.photo}
-              alt={complaint.title}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
-  
-  {/* Translucent (Frosted Glass) Box */}
-  <div className="
-    opacity-0 group-hover:opacity-100 transition-opacity
-    
-    /* These two classes create the translucent effect */
-    bg-white bg-opacity-100
-    backdrop-blur-lg
-    
-    /* Your existing box styles */
-    border border-white border-opacity-90
-    rounded-lg px-3 py-1.5
-    
-    /* Your existing glow effect */
-    group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]
-  ">
-    <p className="text-black text-sm">
-      Click for details
-    </p>
-  </div>
-</div>
+          {/* Images Section - Complaint + Resolution */}
+          <div className={`${
+            (complaint.status === 'resolved' || complaint.status === 'verified') && 
+            complaint.resolutionImages && 
+            complaint.resolutionImages.length > 0 
+              ? 'md:w-96' 
+              : 'md:w-64'
+          } w-full flex-shrink-0`}>
+            <div className={`grid ${
+              (complaint.status === 'resolved' || complaint.status === 'verified') && 
+              complaint.resolutionImages && 
+              complaint.resolutionImages.length > 0 
+                ? 'grid-cols-2' 
+                : 'grid-cols-1'
+            } gap-2 p-2 bg-gray-50`}>
+              {/* Original Complaint Image */}
+              <div className="h-56 bg-gray-100 relative group overflow-hidden rounded">
+                <ImageWithFallback
+                  src={complaint.photo}
+                  alt={complaint.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-2 left-2">
+                  <Badge className="bg-blue-600 text-white text-xs">
+                    Original
+                  </Badge>
+                </div>
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
+                  <p className="text-white opacity-0 group-hover:opacity-100 transition-opacity text-sm">
+                    Click for details
+                  </p>
+                </div>
+              </div>
+
+              {/* Resolution Image (if resolved or verified) */}
+              {(complaint.status === 'resolved' || complaint.status === 'verified') && 
+               complaint.resolutionImages && 
+               complaint.resolutionImages.length > 0 && (
+                <div className={`h-56 relative group overflow-hidden rounded border-2 ${
+                  complaint.status === 'verified' 
+                    ? 'border-green-400' 
+                    : 'border-blue-400'
+                }`}>
+                  <ImageWithFallback
+                    src={complaint.resolutionImages[0]}
+                    alt="Resolution photo"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-2 left-2">
+                    <Badge className={`${
+                      complaint.status === 'verified' 
+                        ? 'bg-green-600' 
+                        : 'bg-blue-600'
+                    } text-white text-xs`}>
+                      ✓ Resolved
+                    </Badge>
+                  </div>
+                  {complaint.resolutionImages.length > 1 && (
+                    <div className="absolute bottom-2 right-2">
+                      <Badge className="bg-black bg-opacity-70 text-white text-xs">
+                        +{complaint.resolutionImages.length - 1} more
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Content */}
           <div className="flex-1 p-6">
             <div className="flex items-start justify-between mb-3">
-              <div className="flex-1">
+              <div className="flex-1 pr-4">
                 <h3 className="mb-2">{complaint.title}</h3>
                 <p className="text-gray-600 mb-3 line-clamp-2">{complaint.description}</p>
               </div>
@@ -148,7 +172,7 @@ export function ComplaintCard({ complaint, onResolve, onClick }: ComplaintCardPr
               <div className="flex items-start gap-2 text-gray-600">
                 <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
-                  <span className="text-sm block">{complaint.location}</span>
+                  <span className="text-sm block truncate">{complaint.location}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2 text-gray-600">
@@ -180,45 +204,15 @@ export function ComplaintCard({ complaint, onResolve, onClick }: ComplaintCardPr
                   <CheckCircle className="w-4 h-4" />
                   <span className="text-sm">Resolved on {formattedResolvedDate}</span>
                 </div>
-                {complaint.status === 'resolved'}
+                {complaint.status === 'resolved' && (
+                  <p className="text-xs text-amber-600 mt-1">
+                    Needs {3 - (complaint.verificationCount || 0)} more citizen verification{3 - (complaint.verificationCount || 0) !== 1 ? 's' : ''}
+                  </p>
+                )}
                 {complaint.status === 'verified' && (
                   <p className="text-xs text-green-700 mt-1">
                     ✓ Verified by {complaint.verificationCount} citizens
                   </p>
-                )}
-                
-                {/* Resolution Images */}
-                {complaint.resolutionImages && complaint.resolutionImages.length > 0 && (
-                  <div className="mt-3">
-                    <p className="text-xs text-gray-600 mb-2">
-                      Resolution Photo{complaint.resolutionImages.length > 1 ? 's' : ''}:
-                    </p>
-                    <div className={`grid gap-2 ${
-                      complaint.resolutionImages.length > 1 ? 'grid-cols-2' : 'grid-cols-1'
-                    }`}>
-                      {complaint.resolutionImages.slice(0, 2).map((imageUrl, index) => (
-                        <div 
-                          key={index} 
-                          className={`rounded border-2 overflow-hidden ${
-                            complaint.status === 'verified' 
-                              ? 'border-green-300' 
-                              : 'border-blue-300'
-                          }`}
-                        >
-                          <ImageWithFallback
-                            src={imageUrl}
-                            alt={`Resolution photo ${index + 1}`}
-                            className="w-full h-24 object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                    {complaint.resolutionImages.length > 2 && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        +{complaint.resolutionImages.length - 2} more photo{complaint.resolutionImages.length - 2 !== 1 ? 's' : ''}
-                      </p>
-                    )}
-                  </div>
                 )}
               </div>
             )}

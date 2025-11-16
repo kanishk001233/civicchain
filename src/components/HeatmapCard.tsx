@@ -27,7 +27,6 @@ const municipalCenters: Record<string, { lat: number; lng: number; zoom: number 
   edmc: { lat: 28.6692, lng: 77.3054, zoom: 12 },
   ahmedabad: { lat: 23.0225, lng: 72.5714, zoom: 11 },
   surat: { lat: 21.1702, lng: 72.8311, zoom: 12 },
-  ludhiana: { lat: 30.9000, lng: 75.8573, zoom: 12 },
   vadodara: { lat: 22.3072, lng: 73.1812, zoom: 12 },
 };
 
@@ -52,6 +51,7 @@ export function HeatmapCard({ municipalId }: HeatmapCardProps) {
   }, [municipalId, isLoading, filter]);
 
   function loadGoogleMapsScript() {
+    // Check if script already loaded
     if (window.google?.maps?.visualization) {
       console.log('Google Maps already loaded');
       setIsLoading(false);
@@ -118,7 +118,8 @@ export function HeatmapCard({ municipalId }: HeatmapCardProps) {
   }
 
   function parseCoordinatesFromLocation(location: string): { lat: number; lng: number } | null {
-    
+    // Try to parse coordinates from location string
+    // Format could be: "19.0760, 72.8777" or "19.0760,72.8777"
     
     const coordPattern = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)\s*,\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/;
     

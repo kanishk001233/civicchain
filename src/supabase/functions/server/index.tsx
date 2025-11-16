@@ -160,82 +160,55 @@ app.get('/make-server-60aaff80/complaints/:municipalId', async (c) => {
     }
 
     // Fetch resolution images for resolved/verified complaints
-    // Fetch resolution images for resolved/verified complaints
-const complaintIds =
-  complaints?.filter(c => c.status === 'resolved' || c.status === 'verified').map(c => c.id) || [];
-
-let resolutionImagesMap = new Map<number, string[]>();
-
-if (complaintIds.length > 0) {
-  const { data: images, error: imageError } = await supabase
-    .from('resolution_images')
-    .select('complaint_id, image_url')
-    .in('complaint_id', complaintIds)
-    .order('uploaded_date', { ascending: true });
-
-  if (!imageError && images) {
-    console.log(`Found ${images.length} resolution images for ${complaintIds.length} complaints`);
-
-    images.forEach(img => {
-      if (!resolutionImagesMap.has(img.complaint_id)) {
-        resolutionImagesMap.set(img.complaint_id, []);
+    const complaintIds = complaints?.filter(c => c.status === 'resolved' || c.status === 'verified').map(c => c.id) || [];
+    let resolutionImagesMap = new Map<number, string[]>();
+    
+    if (complaintIds.length > 0) {
+      const { data: images, error: imageError } = await supabase
+        .from('resolution_images')
+        .select('complaint_id, image_url')
+        .in('complaint_id', complaintIds)
+        .order('uploaded_date', { ascending: true });
+      
+      if (!imageError && images) {
+        console.log(`Found ${images.length} resolution images for ${complaintIds.length} complaints`);
+        
+        // Group images by complaint_id
+        // Images can be either:
+        // 1. Supabase Storage URLs (https://...)
+        // 2. Base64 data URIs (data:image/...)
+        // 3. Raw base64 strings (legacy - need to add prefix)
+        images.forEach(img => {
+          if (!resolutionImagesMap.has(img.complaint_id)) {
+            resolutionImagesMap.set(img.complaint_id, []);
+          }
+          
+          let imageUrl = img.image_url;
+          if (imageUrl) {
+            // If it's a Supabase Storage URL or already has data URI prefix, use as-is
+            if (!imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
+              // It's a raw base64 string (legacy), add the data URI prefix
+              let format = 'jpeg';
+              if (imageUrl.startsWith('/9j/')) format = 'jpeg';
+              else if (imageUrl.startsWith('iVBORw')) format = 'png';
+              else if (imageUrl.startsWith('R0lGOD')) format = 'gif';
+              else if (imageUrl.startsWith('UklGR')) format = 'webp';
+              
+              imageUrl = `data:image/${format};base64,${imageUrl}`;
+              console.log(`Converted legacy base64 for complaint ${img.complaint_id}`);
+            } else if (imageUrl.startsWith('http')) {
+              console.log(`Storage URL for complaint ${img.complaint_id}: ${imageUrl}`);
+            }
+          }
+          
+          resolutionImagesMap.get(img.complaint_id)!.push(imageUrl);
+        });
+        
+        console.log(`Processed resolution images for complaints:`, Array.from(resolutionImagesMap.keys()));
+      } else if (imageError) {
+        console.error('Error fetching resolution images:', imageError);
       }
-
-      let imageUrl = img.image_url;
-
-      if (imageUrl) {
-        // ---- FIX START ----
-        const isHttp =
-          imageUrl.startsWith('http://') ||
-          imageUrl.startsWith('https://');
-
-        const isData = imageUrl.startsWith('data:');
-
-        // If NOT an http/https URL AND NOT data URL → treat as legacy base64
-        if (!isHttp && !isData) {
-          let format = 'jpeg';
-          if (imageUrl.startsWith('/9j/')) format = 'jpeg';
-          else if (imageUrl.startsWith('iVBORw')) format = 'png';
-          else if (imageUrl.startsWith('R0lGOD')) format = 'gif';
-          else if (imageUrl.startsWith('UklGR')) format = 'webp';
-
-          imageUrl = `data:image/${format};base64,${imageUrl}`;
-          console.log(`Converted legacy base64 for complaint ${img.complaint_id}`);
-        } else {
-          console.log(`Using valid URL for complaint ${img.complaint_id}: ${imageUrl}`);
-        }
-        // ---- FIX END ----
-      }
-
-      resolutionImagesMap.get(img.complaint_id)!.push(imageUrl);
-    });
-
-    console.log(
-      `Processed resolution images for complaints:`,
-      Array.from(resolutionImagesMap.keys())
-    );
-  } else if (imageError) {
-    console.error('Error fetching resolution images:', imageError);
-  }
-}
-
-console.log('Final resolutionImagesMap:', resolutionImagesMap);
-
-// Attach images to each complaint
-const complaintsWithImages = complaints.map(complaint => {
-  const images = resolutionImagesMap.get(complaint.id) || [];
-
-  return {
-    ...complaint,
-    resolutionImages: images
-  };
-});
-const resolvedComplaintsWithImages = complaintsWithImages.filter(
-  c => c.status === "resolved" || c.status === "verified"
-);
-
-
-console.log('Array being set to state:', complaintsWithImages);
+    }
 
     // Fetch verification counts for all complaints
     const { data: verifications, error: verifyError } = await supabase
