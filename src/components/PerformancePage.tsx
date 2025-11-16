@@ -126,41 +126,42 @@ export function PerformancePage({ municipalId }: PerformancePageProps) {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card className="p-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600">Total Complaints</span>
-            <CheckCircle className="w-5 h-5 text-blue-600" />
+            <span className="text-gray-600 text-xl">Total Complaints</span>
+            <CheckCircle className="w-8 h-8 text-blue-600" />
           </div>
-          <div className="text-gray-900">{totalComplaints}</div>
-          <p className="text-xs text-gray-500 mt-1">All departments</p>
+          <div className="text-gray-900 text-xl">{totalComplaints}</div>
+          <p className="text-md text-gray-500 mt-1">All departments</p>
         </Card>
 
         <Card className="p-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600">Resolved</span>
-            <TrendingUp className="w-5 h-5 text-green-600" />
+            <span className="text-gray-600 text-xl">Resolved</span>
+            <TrendingUp className="w-8 h-8 text-green-600" />
           </div>
-          <div className="text-gray-900">{totalResolved}</div>
-          <p className="text-xs text-gray-500 mt-1">{avgResolutionRate}% resolution rate</p>
+          <div className="text-gray-900 text-xl">{totalResolved}</div>
+          <p className="text-md text-gray-500 mt-1">{avgResolutionRate}% resolution rate</p>
         </Card>
 
         <Card className="p-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600">Avg Resolution</span>
-            <Clock className="w-5 h-5 text-amber-600" />
+            <span className="text-gray-600 text-xl">Avg Resolution</span>
+            <Clock className="w-8 h-8 text-amber-600" />
           </div>
-          <div className="text-gray-900">{avgResolutionTime} days</div>
-          <p className="text-xs text-gray-500 mt-1">Overall average</p>
+          <div className="text-gray-900 text-xl">{avgResolutionTime} days</div>
+          <p className="text-md text-gray-500 mt-1">Overall average</p>
         </Card>
 
         <Card className="p-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600">Top Performer</span>
-            <Trophy className="w-5 h-5 text-yellow-600" />
+            <span className="text-gray-600 text-xl">Top Performer</span>
+            <Trophy className="w-8 h-8 text-yellow-600" />
           </div>
-          <div className="text-gray-900">{topPerformer?.department || 'N/A'}</div>
-          <p className="text-xs text-gray-500 mt-1">{topPerformer?.score || 0}% score</p>
+          <div className="text-gray-900 text-xl">{topPerformer?.department || 'N/A'}</div>
+          <p className="text-md text-gray-500 mt-1">{topPerformer?.score || 0}% score</p>
         </Card>
       </div>
-
+      {/* Heatmap */}
+      <HeatmapCard municipalId={municipalId} />
       {/* Department Leaderboard */}
       <Card className="p-6 mb-6">
         <div className="flex items-center gap-2 mb-6">
@@ -239,8 +240,7 @@ export function PerformancePage({ municipalId }: PerformancePageProps) {
         </div>
       </Card>
 
-      {/* Heatmap */}
-      <HeatmapCard municipalId={municipalId} />
+      
 
       {/* Performance Chart - Resolution Rate Comparison */}
       <Card className="p-6 mt-6">
