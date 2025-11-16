@@ -707,3 +707,264 @@ export async function getStateForecast(stateId: string): Promise<CategoryForecas
   
   return forecasts;
 }
+
+// State-Municipal Communication API
+export interface StateMessage {
+  id: number;
+  stateId: string;
+  municipalId: string;
+  senderType: 'state' | 'municipal';
+  senderName: string;
+  messageText: string;
+  sentAt: string;
+  readAt?: string;
+  isRead: boolean;
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  messageType: 'text' | 'alert' | 'directive' | 'query';
+  municipalName?: string;
+  stateName?: string;
+}
+
+export interface ConversationThread {
+  id: number;
+  stateId: string;
+  municipalId: string;
+  subject: string;
+  status: 'active' | 'archived' | 'closed';
+  lastMessageAt: string;
+  createdBy: 'state' | 'municipal';
+  municipalName?: string;
+  unreadCount?: number;
+}
+
+export async function getConversationThreads(stateId: string): Promise<ConversationThread[]> {
+  const { createClient } = await import('./supabase/client');
+  const supabase = createClient();
+
+  const { data: threads, error } = await supabase
+    .from('conversation_threads')
+    .select(`
+      *,
+      municipals!inner(name)
+    `)
+    .eq('state_id', stateId)
+    .order('last_message_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching conversation threads:', error);
+    throw new Error(`Failed to fetch threads: ${error.message}`);
+  }
+
+  // Get unread counts for each thread
+  const threadsWithUnread = await Promise.all(
+    (threads || []).map(async (thread) => {
+      const { count } = await supabase
+        .from('state_municipal_messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('state_id', thread.state_id)
+        .eq('municipal_id', thread.municipal_id)
+        .eq('is_read', false)
+        .eq('sender_type', 'municipal');
+
+      return {
+        id: thread.id,
+        stateId: thread.state_id,
+        municipalId: thread.municipal_id,
+        subject: thread.subject,
+        status: thread.status,
+        lastMessageAt: thread.last_message_at,
+        createdBy: thread.created_by,
+        municipalName: thread.municipals?.name,
+        unreadCount: count || 0,
+      };
+    })
+  );
+
+  return threadsWithUnread;
+}
+
+export async function getMessages(
+  stateId: string,
+  municipalId: string,
+  limit: number = 50
+): Promise<StateMessage[]> {
+  const { createClient } = await import('./supabase/client');
+  const supabase = createClient();
+
+  const { data: messages, error } = await supabase
+    .from('state_municipal_messages')
+    .select(`
+      *,
+      municipals!inner(name),
+      states!inner(name)
+    `)
+    .eq('state_id', stateId)
+    .eq('municipal_id', municipalId)
+    .order('sent_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching messages:', error);
+    throw new Error(`Failed to fetch messages: ${error.message}`);
+  }
+
+  return (messages || []).map((m) => ({
+    id: m.id,
+    stateId: m.state_id,
+    municipalId: m.municipal_id,
+    senderType: m.sender_type,
+    senderName: m.sender_name,
+    messageText: m.message_text,
+    sentAt: m.sent_at,
+    readAt: m.read_at,
+    isRead: m.is_read,
+    priority: m.priority,
+    messageType: m.message_type,
+    municipalName: m.municipals?.name,
+    stateName: m.states?.name,
+  })).reverse(); // Reverse to show oldest first
+}
+
+export async function sendMessage(
+  stateId: string,
+  municipalId: string,
+  senderType: 'state' | 'municipal',
+  senderName: string,
+  messageText: string,
+  priority: 'low' | 'normal' | 'high' | 'urgent' = 'normal',
+  messageType: 'text' | 'alert' | 'directive' | 'query' = 'text'
+): Promise<StateMessage> {
+  const { createClient } = await import('./supabase/client');
+  const supabase = createClient();
+
+  // Insert message
+  const { data: message, error: messageError } = await supabase
+    .from('state_municipal_messages')
+    .insert({
+      state_id: stateId,
+      municipal_id: municipalId,
+      sender_type: senderType,
+      sender_name: senderName,
+      message_text: messageText,
+      priority,
+      message_type: messageType,
+      is_read: false,
+    })
+    .select()
+    .single();
+
+  if (messageError) {
+    console.error('Error sending message:', messageError);
+    throw new Error(`Failed to send message: ${messageError.message}`);
+  }
+
+  // Update conversation thread last_message_at
+  const { error: threadError } = await supabase
+    .from('conversation_threads')
+    .upsert(
+      {
+        state_id: stateId,
+        municipal_id: municipalId,
+        subject: 'General Communication',
+        last_message_at: new Date().toISOString(),
+        created_by: senderType,
+        status: 'active',
+      },
+      {
+        onConflict: 'state_id,municipal_id',
+      }
+    );
+
+  if (threadError) {
+    console.error('Error updating thread:', threadError);
+  }
+
+  return {
+    id: message.id,
+    stateId: message.state_id,
+    municipalId: message.municipal_id,
+    senderType: message.sender_type,
+    senderName: message.sender_name,
+    messageText: message.message_text,
+    sentAt: message.sent_at,
+    readAt: message.read_at,
+    isRead: message.is_read,
+    priority: message.priority,
+    messageType: message.message_type,
+  };
+}
+
+export async function markMessagesAsRead(
+  stateId: string,
+  municipalId: string,
+  senderType: 'state' | 'municipal'
+): Promise<void> {
+  const { createClient } = await import('./supabase/client');
+  const supabase = createClient();
+
+  // Mark all messages from the opposite sender as read
+  const oppositeSender = senderType === 'state' ? 'municipal' : 'state';
+
+  const { error } = await supabase
+    .from('state_municipal_messages')
+    .update({
+      is_read: true,
+      read_at: new Date().toISOString(),
+    })
+    .eq('state_id', stateId)
+    .eq('municipal_id', municipalId)
+    .eq('sender_type', oppositeSender)
+    .eq('is_read', false);
+
+  if (error) {
+    console.error('Error marking messages as read:', error);
+    throw new Error(`Failed to mark messages as read: ${error.message}`);
+  }
+}
+
+export async function getUnreadCount(
+  stateId: string,
+  municipalId: string,
+  senderType: 'state' | 'municipal'
+): Promise<number> {
+  const { createClient } = await import('./supabase/client');
+  const supabase = createClient();
+
+  // Count unread messages from the opposite sender
+  const oppositeSender = senderType === 'state' ? 'municipal' : 'state';
+
+  const { count, error } = await supabase
+    .from('state_municipal_messages')
+    .select('*', { count: 'exact', head: true })
+    .eq('state_id', stateId)
+    .eq('municipal_id', municipalId)
+    .eq('sender_type', oppositeSender)
+    .eq('is_read', false);
+
+  if (error) {
+    console.error('Error getting unread count:', error);
+    return 0;
+  }
+
+  return count || 0;
+}
+
+export async function getTotalUnreadCount(stateId: string): Promise<number> {
+  const { createClient } = await import('./supabase/client');
+  const supabase = createClient();
+
+  // Count all unread messages from municipals to state
+  const { count, error } = await supabase
+    .from('state_municipal_messages')
+    .select('*', { count: 'exact', head: true })
+    .eq('state_id', stateId)
+    .eq('sender_type', 'municipal')
+    .eq('is_read', false);
+
+  if (error) {
+    console.error('Error getting total unread count:', error);
+    return 0;
+  }
+
+  return count || 0;
+}

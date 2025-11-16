@@ -93,12 +93,18 @@ export function LoginPage({ onLogin, onStateLogin }: LoginPageProps) {
       return;
     }
 
-    try {
+     try {
       setLoading(true);
       setError("");
       const result = await api.loginMunicipal(selectedMunicipal, password);
       
       if (result.success) {
+        // Save state info to localStorage before calling onLogin
+        const stateData = states.find(s => s.id === selectedState);
+        if (stateData) {
+          localStorage.setItem('selectedStateId', stateData.id);
+          localStorage.setItem('selectedStateName', stateData.name);
+        }
         onLogin(result.municipal.id, result.municipal.name);
       } else {
         setError(result.message || "Invalid credentials. Please try again.");

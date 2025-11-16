@@ -9,6 +9,7 @@ import { ReportsPage } from './components/ReportsPage';
 import { HelpPage } from './components/HelpPage';
 import { StateOverviewPageEnhanced } from './components/StateOverviewPageEnhanced';
 import { AIInsightsPage } from './components/AIInsightsPage';
+import { MunicipalCommunicationChat } from './components/MunicipalCommunicationChat';
 import { Toaster } from './components/ui/sonner';
 import { toast } from 'sonner@2.0.3';
 import * as api from './utils/api';
@@ -58,6 +59,11 @@ export default function App() {
       setLoginType('municipal');
       setMunicipalId(savedMunicipalId);
       setMunicipalName(savedMunicipalName);
+      // Load state info for municipal login
+      if (savedStateId && savedStateName) {
+        setStateId(savedStateId);
+        setStateName(savedStateName);
+      }
       if (savedCurrentPage) {
         setCurrentPage(savedCurrentPage);
       }
@@ -105,6 +111,17 @@ export default function App() {
     setMunicipalId(municipalId);
     setMunicipalName(municipalName);
     setCurrentPage('overview');
+    
+    // Get state ID from localStorage (set during municipal selection in LoginPage)
+    const savedStateId = localStorage.getItem('selectedStateId');
+    const savedStateName = localStorage.getItem('selectedStateName');
+    
+    if (savedStateId && savedStateName) {
+      setStateId(savedStateId);
+      setStateName(savedStateName);
+      localStorage.setItem('stateId', savedStateId);
+      localStorage.setItem('stateName', savedStateName);
+    }
     
     // Save to localStorage
     localStorage.setItem('loginType', 'municipal');
@@ -231,6 +248,17 @@ export default function App() {
       >
         {renderPage()}
       </DashboardLayout>
+      
+      {/* Municipal Communication Chat - Only for municipal login */}
+      {loginType === 'municipal' && municipalId && stateId && (
+        <MunicipalCommunicationChat
+          stateId={stateId}
+          stateName={stateName}
+          municipalId={municipalId}
+          municipalName={municipalName}
+        />
+      )}
+      
       <Toaster position="top-right" />
     </>
   );
