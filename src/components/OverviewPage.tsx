@@ -55,7 +55,10 @@ export function OverviewPage({ complaints, loading }: OverviewPageProps) {
       <div className="mb-8">
         <h1 className="mb-2">Dashboard Overview</h1>
         <p className="text-gray-600">Real-time municipal complaint system insights</p>
-        
+        <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span className="text-sm text-green-800">System Active - All Departments Online</span>
+        </div>
       </div>
 
       {/* Stats Cards */}

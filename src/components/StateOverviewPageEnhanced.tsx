@@ -23,6 +23,7 @@ import {
 import { useState, useEffect } from "react";
 import { StateCommunicationChat } from "./StateCommunicationChat";
 import * as api from "../utils/api";
+import { StateCommunicationChat } from "./StateCommunicationChat";
 import {
   BarChart,
   Bar,
@@ -145,7 +146,19 @@ export function StateOverviewPageEnhanced({
             </p>
           </div>
         </div>
-        
+        <div className="flex items-center gap-3">
+          <div className="inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl shadow-md">
+            <div className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+            </div>
+            <span className="text-sm text-green-800">All Systems Operational</span>
+            <Badge className="bg-green-600 text-white border-0 text-xs">Live</Badge>
+          </div>
+          <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 px-4 py-2">
+            Real-time Data
+          </Badge>
+        </div>
       </div>
 
       {/* Tab Navigation */}
@@ -180,81 +193,62 @@ export function StateOverviewPageEnhanced({
       {selectedTab === "overview" && (
         <div className="space-y-8">
           {/* Key State Metrics */}
-          <div className="flex w-full gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            <Card className="relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-2xl">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+              <div className="p-6 relative">
+                <div className="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mb-4">
+                  <Activity className="w-7 h-7 text-white" />
+                </div>
+                <div className="text-4xl mb-2">{stateStats.totalComplaints.toLocaleString()}</div>
+                <div className="text-sm text-blue-100">Total Complaints</div>
+              </div>
+            </Card>
 
-  {/* TOTAL COMPLAINTS */}
-  <Card className="flex-1 relative overflow-hidden bg-blue-600 text-white shadow-lg rounded-lg">
-    <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-5 rounded-full -mr-20 -mt-20" />
-    <div className="p-6 relative">
-      <div className="w-14 h-14 bg-white rounded-lg mb-4 flex items-center justify-center">
-        <Activity className="w-7 h-7 text-blue-600" />
-      </div>
-      <div className="text-4xl font-bold mb-1">
-        {stateStats.totalComplaints.toLocaleString()}
-      </div>
-      <div className="text-sm text-blue-100">Total Complaints</div>
-    </div>
-  </Card>
+            <Card className="relative overflow-hidden bg-gradient-to-br from-green-500 to-green-700 text-white shadow-2xl">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+              <div className="p-6 relative">
+                <div className="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mb-4">
+                  <CheckCircle className="w-7 h-7 text-white" />
+                </div>
+                <div className="text-4xl mb-2">{stateStats.resolved.toLocaleString()}</div>
+                <div className="text-sm text-green-100">Resolved</div>
+              </div>
+            </Card>
 
-  {/* RESOLVED */}
-  <Card className="flex-1 relative overflow-hidden bg-green-600 text-white shadow-lg rounded-lg">
-    <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-5 rounded-full -mr-20 -mt-20" />
-    <div className="p-6 relative">
-      <div className="w-14 h-14 bg-white rounded-lg mb-4 flex items-center justify-center">
-        <CheckCircle className="w-7 h-7 text-green-600" />
-      </div>
-      <div className="text-4xl font-bold mb-1">
-        {stateStats.resolved.toLocaleString()}
-      </div>
-      <div className="text-sm text-green-100">Resolved</div>
-    </div>
-  </Card>
+            <Card className="relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-700 text-white shadow-2xl">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+              <div className="p-6 relative">
+                <div className="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mb-4">
+                  <Clock className="w-7 h-7 text-white" />
+                </div>
+                <div className="text-4xl mb-2">{stateStats.pending.toLocaleString()}</div>
+                <div className="text-sm text-orange-100">Pending</div>
+              </div>
+            </Card>
 
-  {/* PENDING */}
-  <Card className="flex-1 relative overflow-hidden bg-orange-100 text-orange shadow-lg rounded-lg">
-    <div className="absolute top-0 right-0 w-40 h-40 bg-orange opacity-5 rounded-full -mr-20 -mt-20" />
-    <div className="p-6 relative">
-      <div className="w-14 h-14 bg-orange rounded-lg mb-4 flex items-center justify-center">
-        <Clock className="w-7 h-7 text-orange-600" />
-      </div>
-      <div className="text-4xl font-bold mb-1">
-        {stateStats.pending.toLocaleString()}
-      </div>
-      <div className="text-sm text-orange-100">Pending</div>
-    </div>
-  </Card>
+            <Card className="relative overflow-hidden bg-gradient-to-br from-purple-500 to-purple-700 text-white shadow-2xl">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+              <div className="p-6 relative">
+                <div className="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mb-4">
+                  <Activity className="w-7 h-7 text-white" />
+                </div>
+                <div className="text-4xl mb-2">{avgResolutionTime.toFixed(1)}</div>
+                <div className="text-sm text-purple-100">Avg Days</div>
+              </div>
+            </Card>
 
-  {/* AVG DAYS */}
-  <Card className="flex-1 relative overflow-hidden bg-purple-600 text-white shadow-lg rounded-lg">
-    <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-5 rounded-full -mr-20 -mt-20" />
-    <div className="p-6 relative">
-      <div className="w-14 h-14 bg-white rounded-lg mb-4 flex items-center justify-center">
-        <Activity className="w-7 h-7 text-purple-600" />
-      </div>
-      <div className="text-4xl font-bold mb-1">
-        {avgResolutionTime.toFixed(1)}
-      </div>
-      <div className="text-sm text-purple-100">Avg Days</div>
-    </div>
-  </Card>
-
-  {/* AVG PERFORMANCE */}
-  <Card className="flex-1 relative overflow-hidden bg-cyan-100 text-cyan shadow-lg rounded-lg">
-    <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-5 rounded-full -mr-20 -mt-20" />
-    <div className="p-6 relative">
-      <div className="w-14 h-14 bg-white rounded-lg mb-4 flex items-center justify-center">
-        <Award className="w-7 h-7 text-cyan-600" />
-      </div>
-      <div className="text-4xl font-bold mb-1">
-        {avgPerformance.toFixed(0)}%
-      </div>
-      <div className="text-sm text-cyan-100">Avg Performance</div>
-    </div>
-  </Card>
-
-</div>
-
-            
+            <Card className="relative overflow-hidden bg-gradient-to-br from-cyan-500 to-cyan-700 text-white shadow-2xl">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+              <div className="p-6 relative">
+                <div className="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center mb-4">
+                  <Award className="w-7 h-7 text-white" />
+                </div>
+                <div className="text-4xl mb-2">{avgPerformance.toFixed(0)}%</div>
+                <div className="text-sm text-cyan-100">Avg Performance</div>
+              </div>
+            </Card>
+          </div>
 
           {/* Geographical Overview */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -361,7 +355,7 @@ export function StateOverviewPageEnhanced({
                         key={municipal.municipalId}
                         className="flex items-center gap-3 p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200"
                       >
-                        <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center text-white text-lg">
+                        <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center text-white text-xs">
                           ⚠️
                         </div>
                         <div className="flex-1">
@@ -380,7 +374,7 @@ export function StateOverviewPageEnhanced({
           {/* Statewide Trends */}
           <Card className="p-6 bg-white shadow-xl">
             <h2 className="text-xl mb-6">Statewide Complaint Volume by Municipal</h2>
-            <ResponsiveContainer width="100%" height={500}>
+            <ResponsiveContainer width="100%" height={300}>
               <BarChart data={municipalStats}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="municipalName" tick={{ fontSize: 11 }} angle={-20} textAnchor="end" height={80} />
@@ -577,7 +571,7 @@ export function StateOverviewPageEnhanced({
                     {deptPerformance.map((dept, idx) => (
                       <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
                         <td className="p-4">
-                          <div className="text-md">{dept.categoryName}</div>
+                          <div className="text-sm">{dept.categoryName}</div>
                         </td>
                         <td className="p-4 text-right">
                           <Badge className="bg-blue-100 text-blue-800 border-0">
@@ -585,19 +579,19 @@ export function StateOverviewPageEnhanced({
                           </Badge>
                         </td>
                         <td className="p-4">
-                          <div className="text-md text-red-600">{dept.worstMunicipal}</div>
-                          <div className="text-md text-gray-500">{dept.worstMunicipalAvg.toFixed(1)} days</div>
+                          <div className="text-sm text-red-600">{dept.worstMunicipal}</div>
+                          <div className="text-xs text-gray-500">{dept.worstMunicipalAvg.toFixed(1)} days</div>
                         </td>
                         <td className="p-4">
-                          <div className="text-md text-green-600">{dept.bestMunicipal}</div>
-                          <div className="text-md text-gray-500">{dept.bestMunicipalAvg.toFixed(1)} days</div>
+                          <div className="text-sm text-green-600">{dept.bestMunicipal}</div>
+                          <div className="text-xs text-gray-500">{dept.bestMunicipalAvg.toFixed(1)} days</div>
                         </td>
-                        <td className="p-4 text-right text-md">
+                        <td className="p-4 text-right text-sm">
                           {dept.totalComplaints.toLocaleString()}
                         </td>
                         <td className="p-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <div className="text-md">{dept.resolvedPercentage.toFixed(0)}%</div>
+                            <div className="text-sm">{dept.resolvedPercentage.toFixed(0)}%</div>
                             <div className="w-20 bg-gray-200 rounded-full h-2">
                               <div
                                 className="bg-green-600 h-2 rounded-full"
@@ -621,8 +615,7 @@ export function StateOverviewPageEnhanced({
           {deptPerformance.length > 0 && (
             <Card className="p-6 bg-white shadow-xl">
               <h2 className="text-xl mb-6">Department Complaint Volume</h2>
-              <div className="flex justify-center">
-  <ResponsiveContainer width="80%" height={600}>
+              <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={deptPerformance}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="categoryName" tick={{ fontSize: 10 }} angle={-20} textAnchor="end" height={80} />
@@ -632,8 +625,6 @@ export function StateOverviewPageEnhanced({
                   <Bar dataKey="totalComplaints" fill={colors.primary} name="Total Complaints" />
                 </BarChart>
               </ResponsiveContainer>
-</div>
-              
             </Card>
           )}
         </div>
@@ -903,8 +894,7 @@ export function StateOverviewPageEnhanced({
           {/* Performance Score Distribution */}
           <Card className="p-6 bg-white shadow-xl">
             <h2 className="text-xl mb-6">Performance Score Distribution</h2>
-            <div className="flex justify-center">
-  <ResponsiveContainer width="100%" height={500}>
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={municipalStats}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis
@@ -919,14 +909,13 @@ export function StateOverviewPageEnhanced({
                 <Bar dataKey="score" fill={colors.primary} name="Performance Score" />
               </BarChart>
             </ResponsiveContainer>
+</Card>
 </div>
+)}
 
-            
-          </Card>
-        </div>
-      )}
-      {/* Floating Communication Chat */}
-      <StateCommunicationChat stateId={stateId} stateName={stateName} />
-    </div>
-  );
+{/* Floating Communication Chat */}
+<StateCommunicationChat stateId={stateId} stateName={stateName} />
+
+</div>
+);
 }
