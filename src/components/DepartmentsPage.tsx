@@ -219,37 +219,60 @@ export function DepartmentsPage({ complaints, onResolve, loading }: DepartmentsP
           const stats = getCategoryStats(category.id);
           return (
             <Card
-              key={category.id}
-              className="p-6 cursor-pointer hover:shadow-lg transition-all hover:scale-105"
-              onClick={() => setSelectedCategory(category.id)}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <span className="text-4xl">{category.icon || '📋'}</span>
-                  <div>
-                    <h3>{category.name}</h3>
-                  </div>
-                </div>
-                <Badge variant="outline" className="text-lg px-3 py-1">
-                  {stats.total}
-                </Badge>
-              </div>
+  key={category.id}
+  onClick={() => setSelectedCategory(category.id)}
+  className="cursor-pointer overflow-hidden bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-8 
+             shadow-md hover:shadow-lg hover:-translate-y-1.5 hover:scale-105 transition-transform duration-300 ease-out"
+>
+  {/* Top Section */}
+  <div className="flex items-center justify-between mb-6">
 
-              <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
-                <div className="text-center">
-                  <div className="text-amber-600">{stats.pending}</div>
-                  <div className="text-xs text-gray-500 mt-1">Pending</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-blue-600">{stats.resolved}</div>
-                  <div className="text-xs text-gray-500 mt-1">Resolved</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-green-600">{stats.verified}</div>
-                  <div className="text-xs text-gray-500 mt-1">Verified</div>
-                </div>
-              </div>
-            </Card>
+    {/* Icon + Category Name */}
+    <div className="flex items-center gap-4">
+      <div className="w-14 h-14 rounded-xl bg-gray-100 flex items-center justify-center text-4xl shadow-sm">
+        {category.icon || "📋"}
+      </div>
+
+      <div>
+        <h3 className="font-semibold text-gray-900 text-xl leading-tight">{category.name}</h3>
+        <p className="text-sm text-gray-500 mt-0.5">Category Overview</p>
+      </div>
+    </div>
+
+    {/* Total Count Badge */}
+    <Badge
+      variant="outline"
+      title={`Total: ${stats.total}`}
+      className="text-lg px-4 py-1 bg-gray-50 border border-gray-300 text-gray-700 select-none"
+    >
+      {stats.total}
+    </Badge>
+  </div>
+
+  {/* Divider */}
+  <div className="border-t border-gray-200 mt-6 pt-6 grid grid-cols-3 gap-6 text-center">
+
+    {/* Pending */}
+    <div>
+      <div className="text-2xl font-semibold text-amber-600 animate-pulse">{stats.pending}</div>
+      <div className="text-sm text-gray-500 mt-1">Pending</div>
+    </div>
+
+    {/* Resolved */}
+    <div>
+      <div className="text-2xl font-semibold text-blue-600 animate-pulse">{stats.resolved}</div>
+      <div className="text-sm text-gray-500 mt-1">Resolved</div>
+    </div>
+
+    {/* Verified */}
+    <div>
+      <div className="text-2xl font-semibold text-green-600 animate-pulse">{stats.verified}</div>
+      <div className="text-sm text-gray-500 mt-1">Verified</div>
+    </div>
+
+  </div>
+</Card>
+
           );
         })}
       </div>

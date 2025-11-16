@@ -67,8 +67,14 @@ export function ComplaintDetailsDialog({ complaint, open, onClose }: ComplaintDe
       return;
     }
     
+    // Encode the location for URL
     const encodedLocation = encodeURIComponent(location);
+    
+    // Open Google Maps search with the location (works for both addresses and coordinates)
     const url = `https://www.google.com/maps/search/?api=1&query=${encodedLocation}`;
+    
+    console.log('Searching Google Maps for:', location);
+    console.log('Maps URL:', url);
     
     window.open(url, '_blank');
   };
@@ -84,12 +90,13 @@ export function ComplaintDetailsDialog({ complaint, open, onClose }: ComplaintDe
   };
 
   return (
+    
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl pr-8">{complaint.title}</DialogTitle>
         </DialogHeader>
-
+        
         <div className="space-y-6">
           {/* Status and Metrics */}
           <div className="flex items-center gap-4 flex-wrap">
@@ -115,67 +122,14 @@ export function ComplaintDetailsDialog({ complaint, open, onClose }: ComplaintDe
             )}
           </div>
 
-          {/* Images - Before/After for Resolved Complaints */}
-          {(complaint.status === 'resolved' || complaint.status === 'verified') && 
-           complaint.resolutionImages && 
-           complaint.resolutionImages.length > 0 ? (
-            <div>
-              <h3 className="mb-3 flex items-center gap-2">
-                📸 Before & After Comparison
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Before Image */}
-                <div>
-                  <p className="text-sm text-gray-600 mb-2">Before (Original Complaint)</p>
-                  <div className="rounded-lg overflow-hidden border-2 border-red-200">
-                    <div className="w-full h-80 bg-gray-100">
-                      <ImageWithFallback
-                        src={complaint.photo}
-                        alt={complaint.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* After Image */}
-                <div>
-                  <p className="text-sm text-gray-600 mb-2">
-                    After (Resolution {complaint.status === 'verified' ? '✓ Verified' : ''})
-                  </p>
-                  <div className={`rounded-lg overflow-hidden border-2 ${
-                    complaint.status === 'verified' ? 'border-green-400' : 'border-blue-400'
-                  }`}>
-                    <div className="w-full h-80 bg-gray-100">
-                      <ImageWithFallback
-                        src={complaint.resolutionImages[0]}
-                        alt="Resolution photo"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {complaint.resolutionImages.length > 1 && (
-                <p className="text-sm text-gray-600 mt-2">
-                  + {complaint.resolutionImages.length - 1} more resolution photo{complaint.resolutionImages.length - 1 !== 1 ? 's' : ''} available below
-                </p>
-              )}
-            </div>
-          ) : (
-            <div>
-              <h3 className="mb-3">Complaint Photo</h3>
-              <div className="rounded-lg overflow-hidden border border-gray-200">
-                <div className="w-full h-96 bg-gray-100">
-                  <ImageWithFallback
-                    src={complaint.photo}
-                    alt={complaint.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Complaint Image */}
+          <div className="rounded-lg overflow-hidden border border-gray-200">
+            <ImageWithFallback
+              src={complaint.photo}
+              alt={complaint.title}
+              className="w-full h-96 object-cover"
+            />
+          </div>
 
           {/* Description */}
           <div>
@@ -235,7 +189,7 @@ export function ComplaintDetailsDialog({ complaint, open, onClose }: ComplaintDe
                       <p className="text-sm text-gray-600">By: {complaint.resolvedByOfficer}</p>
                     )}
                     <p className="text-sm text-amber-600 mt-1">
-                      Awaiting citizen verifications
+                      Awaiting citizen verification
                     </p>
                   </div>
                 </div>
@@ -269,24 +223,25 @@ export function ComplaintDetailsDialog({ complaint, open, onClose }: ComplaintDe
               )}
             </div>
           </div>
-
-          {/* Additional Resolution Images (if more than 1) */}
-          {complaint.resolutionImages && complaint.resolutionImages.length > 1 && (
+          
+          {/* Resolution Images */}
+          
+          {complaint.resolutionImages && complaint.resolutionImages.length > 0 && (
             <div>
               <h3 className="mb-3 text-green-700">
-                Additional Resolution Photos
-                <span className="ml-2 text-sm text-gray-600">({complaint.resolutionImages.length - 1} more)</span>
+                Resolution Photo{complaint.resolutionImages.length > 1 ? 's' : ''}
+                {complaint.resolutionImages.length > 1 && (
+                  <span className="ml-2 text-sm text-gray-600">({complaint.resolutionImages.length} images)</span>
+                )}
               </h3>
-              <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                {complaint.resolutionImages.slice(1).map((imageUrl, index) => (
+              <div className={`grid gap-4 ${complaint.resolutionImages.length > 1 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
+                {complaint.resolutionImages.map((imageUrl, index) => (
                   <div key={index} className="rounded-lg overflow-hidden border-2 border-green-200">
-                    <div className="w-full h-56 bg-gray-100">
-                      <ImageWithFallback
-                        src={imageUrl}
-                        alt={`Resolution photo ${index + 2}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+                    <ImageWithFallback
+                      src={imageUrl}
+                      alt={`Resolution photo ${index + 1}`}
+                      className="w-full h-64 object-cover"
+                    />
                   </div>
                 ))}
               </div>

@@ -21,7 +21,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { StateCommunicationChat } from "./StateCommunicationChat";
 import * as api from "../utils/api";
 import { StateCommunicationChat } from "./StateCommunicationChat";
 import {
@@ -909,13 +908,12 @@ export function StateOverviewPageEnhanced({
                 <Bar dataKey="score" fill={colors.primary} name="Performance Score" />
               </BarChart>
             </ResponsiveContainer>
-</Card>
-</div>
-)}
+          </Card>
+        </div>
+      )}
 
-{/* Floating Communication Chat */}
-<StateCommunicationChat stateId={stateId} stateName={stateName} />
-
-</div>
-);
+      {/* Floating Communication Chat */}
+      <StateCommunicationChat stateId={stateId} stateName={stateName} />
+    </div>
+  );
 }

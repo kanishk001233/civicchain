@@ -340,11 +340,7 @@ export function LoginPage({ onLogin, onStateLogin }: LoginPageProps) {
                     disabled={loading}
                   />
                 </div>
-                <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
-                  <p className="font-semibold mb-1">Demo Credentials:</p>
-                  <p>Password: {selectedMunicipal}123</p>
-                  <p className="text-blue-600 mt-1">Example: mumbai123, pune123, blr123</p>
-                </div>
+                
               </div>
             )}
 
@@ -374,7 +370,6 @@ export function LoginPage({ onLogin, onStateLogin }: LoginPageProps) {
           </form>
 
           <div className="mt-6 pt-6 border-t text-center text-sm text-gray-500">
-            <p>Authorized Personnel Only</p>
           </div>
         </Card>
       </div>
@@ -413,7 +408,6 @@ export function LoginPage({ onLogin, onStateLogin }: LoginPageProps) {
         </div>
 
         <div className="mt-8 pt-6 border-t text-center text-sm text-gray-500">
-          <p>Authorized Personnel Only</p>
         </div>
       </Card>
     </div>

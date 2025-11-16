@@ -119,139 +119,191 @@ export function OverviewPageEnhanced({ complaints, loading }: OverviewPageProps)
       {/* Main Stats Cards - Enhanced Design */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Total Complaints */}
-        <Card className="relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-2xl hover:shadow-3xl transition-all transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -mr-20 -mt-20"></div>
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full -ml-16 -mb-16"></div>
-          <div className="p-6 relative">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-16 h-16 bg-gray bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
-                <Activity className="w-8 h-8 text-white" />
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-blue-100 mb-1">Total</div>
-                <Badge className="bg-white bg-opacity-25 text-white border-0 backdrop-blur-sm">
-                  All Time
-                </Badge>
-              </div>
-            </div>
-            <div className="text-5xl mb-2">{totalCount}</div>
-            <div className="text-sm text-blue-100">All Complaints</div>
-            <div className="mt-4 pt-4 border-t border-white border-opacity-20">
-              <div className="flex items-center justify-between text-xs text-blue-100">
-                <span>This Week</span>
-                <span className="flex items-center gap-1">
-                  {last7Days.length}
-                  {weeklyTrend !== 0 && (
-                    <span className={`flex items-center ml-2 ${weeklyTrend > 0 ? 'text-orange-200' : 'text-green-200'}`}>
-                      {weeklyTrend > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-                      {Math.abs(weeklyTrend)}%
-                    </span>
-                  )}
-                </span>
-              </div>
-            </div>
-          </div>
-        </Card>
+        <Card className="overflow-hidden bg-white border border-gray-200 shadow-sm">
+  {/* Main Content Area */}
+  <div className="p-6">
+    <div className="flex items-start justify-between mb-4">
+      {/* Icon */}
+      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+        <Activity className="w-6 h-6 text-blue-600" />
+      </div>
+      
+      {/* Badge */}
+      <div className="text-right">
+        <div className="text-xs text-gray-500 mb-1">Total</div>
+        <Badge variant="outline" className="bg-gray-50 border-gray-200 text-gray-700">
+          All Time
+        </Badge>
+      </div>
+    </div>
+    
+    {/* Main Stats */}
+    <div className="text-4xl font-bold text-gray-900 mb-1">{totalCount}</div>
+    <div className="text-sm text-gray-500">All Complaints</div>
+  </div>
+  
+  {/* Footer Area with different background */}
+  <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
+    <div className="flex items-center justify-between text-sm text-gray-600">
+      <span>This Week</span>
+      <span className="flex items-center gap-1 font-medium">
+        {last7Days.length}
+        
+        {/* Trend Indicator */}
+        {weeklyTrend !== 0 && (
+          <span className={`flex items-center ml-2 text-xs ${weeklyTrend > 0 ? 'text-red-600' : 'text-green-600'}`}>
+            {weeklyTrend > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+            {Math.abs(weeklyTrend)}%
+          </span>
+        )}
+      </span>
+    </div>
+  </div>
+</Card>
 
         {/* Pending */}
-        <Card className="relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-700 text-white shadow-2xl hover:shadow-3xl transition-all transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -mr-20 -mt-20"></div>
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full -ml-16 -mb-16"></div>
-          <div className="p-6 relative">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-16 h-16 bg-gray bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
-                <Clock className="w-8 h-8 text-white" />
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-orange-100 mb-1">Pending</div>
-                <Badge className="bg-white bg-opacity-25 text-white border-0 backdrop-blur-sm">
-                  {totalCount > 0 ? Math.round((pendingCount / totalCount) * 100) : 0}%
-                </Badge>
-              </div>
-            </div>
-            <div className="text-5xl mb-2">{pendingCount}</div>
-            <div className="text-sm text-orange-100">Awaiting Action</div>
-            <div className="mt-4 pt-4 border-t border-white border-opacity-20">
-              <div className="flex items-center justify-between text-xs text-orange-100">
-                <span>Requires Review</span>
-                <span className="flex items-center gap-1">
-                  <AlertTriangle className="w-3 h-3" />
-                  High Priority
-                </span>
-              </div>
-            </div>
-          </div>
-        </Card>
+        <Card className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
+  {/* Main Content */}
+  <div className="p-6">
+    <div className="flex items-start justify-between mb-4">
+      
+      {/* Icon */}
+      <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+        <Clock className="w-6 h-6 text-orange-600" />
+      </div>
+
+      {/* Badge / Label */}
+      <div className="text-right">
+        <div className="text-xs text-gray-500 mb-1">Pending</div>
+        <Badge
+          variant="outline"
+          className="bg-gray-50 border-gray-200 text-gray-700"
+        >
+          {totalCount > 0 ? Math.round((pendingCount / totalCount) * 100) : 0}%
+        </Badge>
+      </div>
+
+    </div>
+
+    {/* Main Number */}
+    <div className="text-4xl font-bold text-gray-900 mb-1">
+      {pendingCount}
+    </div>
+    <div className="text-sm text-gray-500">Awaiting Action</div>
+  </div>
+
+  {/* Footer Section */}
+  <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
+    <div className="flex items-center justify-between text-sm text-gray-600">
+      <span>Requires Review</span>
+
+      <span className="flex items-center gap-1 font-medium">
+        <AlertTriangle className="w-4 h-4 text-orange-600" />
+        High Priority
+      </span>
+    </div>
+  </div>
+</Card>
+
 
         {/* In Progress */}
-        <Card className="relative overflow-hidden bg-gradient-to-br from-cyan-500 to-cyan-700 text-white shadow-2xl hover:shadow-3xl transition-all transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -mr-20 -mt-20"></div>
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full -ml-16 -mb-16"></div>
-          <div className="p-6 relative">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-16 h-16 bg-gray bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
-                <TrendingUp className="w-8 h-8 text-white" />
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-cyan-100 mb-1">Active</div>
-                <Badge className="bg-white bg-opacity-25 text-white border-0 backdrop-blur-sm">
-                  {totalCount > 0 ? Math.round((verifiedCount / totalCount) * 100) : 0}%
-                </Badge>
-              </div>
-            </div>
-            <div className="text-5xl mb-2">{verifiedCount}</div>
-            <div className="text-sm text-cyan-100">In Progress</div>
-            <div className="mt-4 pt-4 border-t border-white border-opacity-20">
-              <div className="flex items-center justify-between text-xs text-cyan-100">
-                <span>Being Resolved</span>
-                <span className="flex items-center gap-1">
-                  <Zap className="w-3 h-3" />
-                  Active
-                </span>
-              </div>
-            </div>
-          </div>
-        </Card>
+       <Card className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
+  {/* Main Content */}
+  <div className="p-6">
+    <div className="flex items-start justify-between mb-4">
+      
+      {/* Icon */}
+      <div className="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
+        <TrendingUp className="w-6 h-6 text-cyan-600" />
+      </div>
+
+      {/* Badge & Label */}
+      <div className="text-right">
+        <div className="text-xs text-gray-500 mb-1">Active</div>
+        <Badge
+          variant="outline"
+          className="bg-gray-50 border-gray-200 text-gray-700"
+        >
+          {totalCount > 0 ? Math.round((verifiedCount / totalCount) * 100) : 0}%
+        </Badge>
+      </div>
+    </div>
+
+    {/* Main Value */}
+    <div className="text-4xl font-bold text-gray-900 mb-1">
+      {verifiedCount}
+    </div>
+    <div className="text-sm text-gray-500">In Progress</div>
+  </div>
+
+  {/* Footer Section */}
+  <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
+    <div className="flex items-center justify-between text-sm text-gray-600">
+      <span>Being Resolved</span>
+
+      <span className="flex items-center gap-1 font-medium">
+        <Zap className="w-4 h-4 text-cyan-600" />
+        Active
+      </span>
+    </div>
+  </div>
+</Card>
+
 
         {/* Resolved */}
-        <Card className="relative overflow-hidden bg-gradient-to-br from-green-500 to-green-700 text-white shadow-2xl hover:shadow-3xl transition-all transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -mr-20 -mt-20"></div>
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-5 rounded-full -ml-16 -mb-16"></div>
-          <div className="p-6 relative">
-            <div className="flex items-start justify-between mb-4">
-              <div className="w-16 h-16 bg-gray bg-opacity-20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
-                <CheckCircle className="w-8 h-8 text-white" />
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-green-100 mb-1">Success Rate</div>
-                <Badge className="bg-white bg-opacity-25 text-white border-0 backdrop-blur-sm">
-                  {resolutionRate}%
-                </Badge>
-              </div>
-            </div>
-            <div className="text-5xl mb-2">{resolvedCount}</div>
-            <div className="text-sm text-green-100">Resolved</div>
-            <div className="mt-4 pt-4 border-t border-white border-opacity-20">
-              <div className="flex items-center justify-between text-xs text-green-100">
-                <span>Avg Resolution</span>
-                <span className="flex items-center gap-1">
-                  {avgResolutionTime} days
-                </span>
-              </div>
-            </div>
-          </div>
-        </Card>
+        <Card className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
+  {/* Main Content */}
+  <div className="p-6">
+    <div className="flex items-start justify-between mb-4">
+
+      {/* Icon */}
+      <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+        <CheckCircle className="w-6 h-6 text-green-600" />
+      </div>
+
+      {/* Badge */}
+      <div className="text-right">
+        <div className="text-xs text-gray-500 mb-1">Success Rate</div>
+        <Badge
+          variant="outline"
+          className="bg-gray-50 border-gray-200 text-gray-700"
+        >
+          {resolutionRate}%
+        </Badge>
+      </div>
+
+    </div>
+
+    {/* Main Number */}
+    <div className="text-4xl font-bold text-gray-900 mb-1">
+      {resolvedCount}
+    </div>
+    <div className="text-sm text-gray-500">Resolved</div>
+  </div>
+
+  {/* Footer */}
+  <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
+    <div className="flex items-center justify-between text-sm text-gray-600">
+      <span>Avg Resolution</span>
+
+      <span className="flex items-center gap-1 font-medium">
+        {avgResolutionTime} days
+      </span>
+    </div>
+  </div>
+</Card>
+
       </div>
 
       {/* Quick Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="p-6 bg-white shadow-lg hover:shadow-xl transition-shadow border-l-4">
+        <Card className="p-6 bg-white shadow-lg hover:shadow-xl transition-shadow border-l-4 ">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center">
-              <ThumbsUp className="w-8 h-8 text-purple-600" />
+              <ThumbsUp className="w-10 h-10 text-purple-600" />
             </div>
             <div className="flex-1">
-              <div className="text-xs text-gray-600 mb-1">Citizen Engagement</div>
+              <div className="text-md text-gray-600 mb-1">Citizen Engagement</div>
               <div className="text-3xl mb-1">
                 {complaints.reduce((sum, c) => sum + c.votes, 0)}
               </div>
@@ -260,13 +312,13 @@ export function OverviewPageEnhanced({ complaints, loading }: OverviewPageProps)
           </div>
         </Card>
 
-        <Card className="p-6 bg-white shadow-lg hover:shadow-xl transition-shadow border-l-4 ">
+        <Card className="p-6 bg-white shadow-lg hover:shadow-xl transition-shadow border-l-4">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-2xl flex items-center justify-center">
-              <MapPin className="w-8 h-8 text-indigo-600" />
+              <MapPin className="w-10 h-10 text-indigo-600" />
             </div>
             <div className="flex-1">
-              <div className="text-xs text-gray-600 mb-1">Active Locations</div>
+              <div className="text-md text-gray-600 mb-1">Active Locations</div>
               <div className="text-3xl mb-1">
                 {new Set(complaints.map(c => c.location)).size}
               </div>
@@ -278,10 +330,10 @@ export function OverviewPageEnhanced({ complaints, loading }: OverviewPageProps)
         <Card className="p-6 bg-white shadow-lg hover:shadow-xl transition-shadow border-l-4">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 bg-gradient-to-br from-pink-100 to-pink-200 rounded-2xl flex items-center justify-center">
-              <Calendar className="w-8 h-8 text-pink-600" />
+              <Calendar className="w-10 h-10 text-pink-600" />
             </div>
             <div className="flex-1">
-              <div className="text-xs text-gray-600 mb-1">This Week</div>
+              <div className="text-md text-gray-600 mb-1">This Week</div>
               <div className="text-3xl mb-1">{last7Days.length}</div>
               <div className="text-xs text-gray-600 flex items-center gap-1">
                 New Complaints
@@ -298,7 +350,7 @@ export function OverviewPageEnhanced({ complaints, loading }: OverviewPageProps)
       </div>
 
       {/* Category Overview - Enhanced */}
-      <Card className="p-6 mb-8 bg-white shadow-xl border-t-4">
+      <Card className="p-6 mb-8 bg-white shadow-xl border-t-4 border-blue-500">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
             <BarChart3 className="w-5 h-5 text-white" />
@@ -348,7 +400,7 @@ export function OverviewPageEnhanced({ complaints, loading }: OverviewPageProps)
       {/* Bottom Grid - Urgent & Recent */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Urgent Complaints */}
-        <Card className="p-6 bg-white shadow-xl border-l-4">
+        <Card className="p-6 bg-white shadow-xl border-l-4 border-red-500">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-500 rounded-lg flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-white" />
